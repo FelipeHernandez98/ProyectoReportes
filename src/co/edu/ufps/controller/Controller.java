@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import co.edu.ufps.dao.RolDAO;
 import co.edu.ufps.dao.TypedbDAO;
 import co.edu.ufps.dao.UsuarioDao;
+import co.edu.ufps.entities.Connectiontoken;
 import co.edu.ufps.entities.Rol;
 import co.edu.ufps.entities.Typedb;
 import co.edu.ufps.entities.Usuario;
@@ -19,7 +20,7 @@ import co.edu.ufps.util.*;
 
 
 @WebServlet({ "/Usuario", "/Registro","/Registro/enviar","/validarRegistro","/validarRegistro/enviar","/login" ,"/login/enviar",
-	"/registroTipo","/registroTipo/enviar","","/","/index.jsp"})
+	"/registroTipo","/registroTipo/enviar","token.jsp","/","/index.jsp"})
 public class Controller extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -92,8 +93,12 @@ public class Controller extends HttpServlet {
 			registroTipo(request, response);
 			
 			break;
-		}
 		
+		
+		case "TokenRegistrar":
+			registrarToken(request, response);
+			break;
+		}
 		
 	}
 
@@ -213,6 +218,30 @@ public class Controller extends HttpServlet {
 		
 	}
 	
+	protected void registrarToken(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String host=request.getParameter("host");
+		String userdb=request.getParameter("userdb");
+		int port=Integer.parseInt(request.getParameter("port"));
+		Typedb tipo=new Typedb();
+		tipo.setId(request.getParameter("typedb"));
+		String pass=request.getParameter("pass");
+		
+		Connectiontoken ct=new Connectiontoken();
+		ct.setHost(host);
+		ct.setUserdb(userdb);
+		ct.setPort(new Short(port+""));
+		ct.setTypedb(tipo);
+		ct.setPass(pass);
+		ct.setToken("prueba123");
+		HttpSession misession= request.getSession(true);
+		Usuario user=(Usuario)misession.getAttribute("usuario");
+		ct.setUsuario(user);
+		this.tokendao.insert(ct);
+		
+		response.sendRedirect("../dashboard/tokens.jsp");
+		
+	}
+
 	
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
